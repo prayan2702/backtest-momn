@@ -65,6 +65,7 @@ def rank_stocks(close_df, volume_df, high_df, end_date):
     dfStats['circuit'] = (getDailyReturns(close_df.iloc[-252:]) * 100).apply(lambda x: ((x == 4.99) | (x == 5.00) | (x == 9.99) | (x == 10.00) | (x == 19.99) | (x == 20.00) | (x == -4.99) | (x == -5.00) | (x == -9.99) | (x == -10.00) | (x == -19.99) | (x == -20.00)).sum()
     dfStats['circuit5'] = (getDailyReturns(close_df.iloc[-63:]) * 100).apply(lambda x: ((x == 4.99) | (x == 5.00) | (x == -4.99) | (x == -5.00)).sum())
 
+
     # Apply filters
     cond1 = dfStats['volm_cr'] > 1
     cond3 = dfStats['Close'] > dfStats['dma200d']
