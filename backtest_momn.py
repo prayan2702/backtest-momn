@@ -62,7 +62,7 @@ def rank_stocks(close_df, volume_df, high_df, end_date):
     dfStats['volm_cr'] = (getMedianVolume(volume_df.iloc[-252:]) / 1e7).round(2)
     dfStats['ATH'] = round(high_df.max(), 2)
     dfStats['AWAY_ATH'] = round((dfStats['Close'] / dfStats['ATH'] - 1) * 100, 2)
-    dfStats['circuit'] = (getDailyReturns(close_df.iloc[-252:]) * 100).apply(lambda x: ((x == 4.99) | (x == 5.00) | (x == 9.99) | (x == 10.00) | (x == 19.99) | (x == 20.00) | (x == -4.99) | (x == -5.00) | (x == -9.99) | (x == -10.00) | (x == -19.99) | (x == -20.00)).sum()
+    dfStats['circuit'] = (getDailyReturns(close_df.iloc[-252:]) * 100).apply(lambda x: ((x == 4.99) | (x == 5.00) | (x == 9.99) | (x == 10.00) | (x == 19.99) | (x == 20.00) | (x == -4.99) | (x == -5.00) | (x == -9.99) | (x == -10.00) | (x == -19.99) | (x == -20.00)).sum())
     dfStats['circuit5'] = (getDailyReturns(close_df.iloc[-63:]) * 100).apply(lambda x: ((x == 4.99) | (x == 5.00) | (x == -4.99) | (x == -5.00)).sum())
 
 
