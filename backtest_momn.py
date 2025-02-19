@@ -16,11 +16,11 @@ def fetch_nse_stock_list():
     
     for i, symbol in enumerate(df['Yahoo_Symbol'].tolist()):
         try:
-            test_data = yf.download(symbol, period="1d")
+            test_data = yf.download(symbol, period="1d", progress=False)
             if not test_data.empty:
                 valid_symbols.append(symbol)
-        except:
-            pass  # Ignore symbols that cause errors
+        except Exception as e:
+            st.warning(f"Skipping {symbol}: {e}")  # Show warning for skipped symbols
         
         progress_bar.progress((i + 1) / total_symbols)
     
@@ -67,10 +67,19 @@ def main():
         cerebro.addstrategy(MomentumStrategy)
         
         progress_bar = st.progress(0)
+        valid_data = []
         for i, symbol in enumerate(symbols):
-            data = bt.feeds.YahooFinanceData(dataname=symbol, fromdate=start_date, todate=end_date)
-            cerebro.adddata(data)
+            try:
+                data = bt.feeds.YahooFinanceData(dataname=symbol, fromdate=start_date, todate=end_date)
+                cerebro.adddata(data)
+                valid_data.append(symbol)
+            except Exception as e:
+                st.warning(f"Error loading {symbol}: {e}")
             progress_bar.progress((i + 1) / len(symbols))
+        
+        if not valid_data:
+            st.error("No valid stock data available for backtesting.")
+            return
         
         cerebro.broker.set_cash(100000)
         cerebro.run()
