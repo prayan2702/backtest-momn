@@ -5,12 +5,22 @@ import yfinance as yf
 import backtrader as bt
 from datetime import datetime, timedelta
 
-# Function to fetch NSE stock list from CSV
+# Function to fetch NSE stock list from CSV and validate availability
 def fetch_nse_stock_list():
     url = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/main/NSE_EQ_ALL.csv'
     df = pd.read_csv(url)
     df['Yahoo_Symbol'] = df['Symbol'] + '.NS'
-    return df['Yahoo_Symbol'].tolist()
+    
+    valid_symbols = []
+    for symbol in df['Yahoo_Symbol'].tolist():
+        try:
+            test_data = yf.download(symbol, period="1d")
+            if not test_data.empty:
+                valid_symbols.append(symbol)
+        except:
+            pass  # Ignore symbols that cause errors
+    
+    return valid_symbols
 
 # Backtrader Strategy Class
 class MomentumStrategy(bt.Strategy):
@@ -41,16 +51,19 @@ class MomentumStrategy(bt.Strategy):
             else:
                 self.order_target_percent(d, target=0.0)
 
-# Streamlit UI
+# reamlit UI
 def main():
-    st.title("Momentum Strategy Backtesting")
+    st.title("Momentum SSttrategy Backtesting")
     
     # Input Parameters
     start_date = st.date_input("Start Date", datetime(2015, 1, 1))
     end_date = st.date_input("End Date", datetime(2023, 1, 1))
     
     if st.button("Run Backtest"):
+        st.write("Fetching valid stock symbols... This may take a few minutes.")
         symbols = fetch_nse_stock_list()
+        st.write(f"Total valid stocks found: {len(symbols)}")
+        
         cerebro = bt.Cerebro()
         cerebro.addstrategy(MomentumStrategy)
         
