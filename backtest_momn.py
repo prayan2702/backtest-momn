@@ -5,6 +5,13 @@ import yfinance as yf
 import backtrader as bt
 from datetime import datetime, timedelta
 
+# Function to fetch NSE stock list from CSV
+def fetch_nse_stock_list():
+    url = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/main/NSE_EQ_ALL.csv'
+    df = pd.read_csv(url)
+    df['Yahoo_Symbol'] = df['Symbol'] + '.NS'
+    return df['Yahoo_Symbol'].tolist()
+
 # Backtrader Strategy Class
 class MomentumStrategy(bt.Strategy):
     params = (('lookback', 252), ('top_n', 30))
@@ -41,10 +48,9 @@ def main():
     # Input Parameters
     start_date = st.date_input("Start Date", datetime(2015, 1, 1))
     end_date = st.date_input("End Date", datetime(2023, 1, 1))
-    universe = st.text_area("Enter stock symbols (comma-separated)")
     
     if st.button("Run Backtest"):
-        symbols = [s.strip() + ".NS" for s in universe.split(',') if s.strip()]
+        symbols = fetch_nse_stock_list()
         cerebro = bt.Cerebro()
         cerebro.addstrategy(MomentumStrategy)
         
