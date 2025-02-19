@@ -19,8 +19,8 @@ def fetch_nse_stock_list():
             test_data = yf.download(symbol, period="1d", progress=False)
             if not test_data.empty:
                 valid_symbols.append(symbol)
-        except Exception as e:
-            st.warning(f"Skipping {symbol}: {e}")  # Show warning for skipped symbols
+        except Exception:
+            pass  # Ignore symbols that cause errors
         
         progress_bar.progress((i + 1) / total_symbols)
     
@@ -70,11 +70,13 @@ def main():
         valid_data = []
         for i, symbol in enumerate(symbols):
             try:
-                data = bt.feeds.YahooFinanceData(dataname=symbol, fromdate=start_date, todate=end_date)
-                cerebro.adddata(data)
-                valid_data.append(symbol)
-            except Exception as e:
-                st.warning(f"Error loading {symbol}: {e}")
+                data = yf.download(symbol, start=start_date, end=end_date, progress=False)
+                if not data.empty:
+                    data_feed = bt.feeds.PandasData(dataname=data)
+                    cerebro.adddata(data_feed)
+                    valid_data.append(symbol)
+            except Exception:
+                pass  # Ignore errors while loading data
             progress_bar.progress((i + 1) / len(symbols))
         
         if not valid_data:
